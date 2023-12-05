@@ -1,10 +1,22 @@
-import { useState } from "react";
+import { useState } from "react"; // useState hook
+import { useDispatch } from "react-redux"; // Hook to get a dispatch from Redux store
+import { createCustomer } from "./customerSlice"; // Action creator function
 
 function Customer() {
+  // Setting the state for name and ID
   const [fullName, setFullName] = useState("");
   const [nationalId, setNationalId] = useState("");
 
-  function handleClick() {}
+  // Getting the dispatch function for our Redux store
+  const dispatch = useDispatch();
+
+  function handleClick() {
+    // Guard clause
+    if (!fullName || !nationalId) return;
+
+    // Dispatching the action creators function
+    dispatch(createCustomer(fullName, nationalId));
+  }
 
   return (
     <div>
