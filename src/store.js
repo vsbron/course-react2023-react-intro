@@ -1,6 +1,9 @@
 // Importing the createStore function from redux
 // It is deprecated, used for learning purposes only
-import { combineReducers, createStore } from "redux";
+import { applyMiddleware, combineReducers, createStore } from "redux";
+
+// Importing the thunk library for using the middleware
+import { thunk } from "redux-thunk";
 
 // Importing reducers
 import accountReducer from "./features/accounts/accountSlice";
@@ -12,8 +15,8 @@ const rootReducer = combineReducers({
   customer: customerReducer,
 });
 
-// Creating the store from root reducer
-const store = createStore(rootReducer);
+// Creating the store from root reducer, and applying the Redux Thunk middleware
+const store = createStore(rootReducer, applyMiddleware(thunk));
 
 // Printing out hte state object
 console.log(store.getState());
