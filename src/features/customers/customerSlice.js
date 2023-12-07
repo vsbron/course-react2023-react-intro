@@ -1,39 +1,49 @@
+// Importing the function that will create the slice
+import { createSlice } from "@reduxjs/toolkit";
+
 // Creating initial state for customer
-const initialStateCustomer = {
+const initialState = {
   fullName: "",
   nationalID: "",
   createdAt: "",
 };
 
-// Writing a basic reducer function for customer
-export default function customerReducer(state = initialStateCustomer, action) {
-  switch (action.type) {
-    // Create customer
-    case "customer/createCustomer":
-      return {
-        ...state,
-        fullName: action.payload.fullName,
-        nationalID: action.payload.nationalID,
-        createdAt: action.payload.createdAt,
-      };
+// Creating the slice with reducers using createSlice function
+const customerSlice = createSlice({
+  name: "customer",
+  initialState,
+  reducers: {
+    // Creating the customer
+    createCustomer: {
+      //  Preparing the new payload because it should have more than 1 argument
+      prepare(fullName, nationalID) {
+        // Returning the new payload
+        return {
+          payload: {
+            fullName,
+            nationalID,
+            createdAt: new Date().toISOString(),
+          },
+        };
+      },
 
-    // Change customer's name
-    case "customer/updateName":
-      return { ...state, fullName: action.payload };
+      // Creating the reducer with the right amount of arguments
+      reducer(state, action) {
+        state.fullName = action.payload.fullName;
+        state.nationalID = action.payload.nationalID;
+        state.createdAt = action.payload.createdAt;
+      },
+    },
 
-    // Default behavior (returning state, instead of throwing error in useReducer)
-    default:
-      return state;
-  }
-}
+    // Updating the customer's name
+    updateName(state, action) {
+      state.fullName = action.payload;
+    },
+  },
+});
 
-// Action creators for customer reducer
-export function createCustomer(fullName, nationalID) {
-  return {
-    type: "customer/createCustomer",
-    payload: { fullName, nationalID, createdAt: new Date().toISOString() },
-  };
-}
-export function updateName(fullName) {
-  return { type: "customer/updateName", payload: fullName };
-}
+// Exporting the reducer from the slice
+export default customerSlice.reducer;
+
+// Exporting the action creators functions from the slice
+export const { createCustomer, updateName } = customerSlice.actions;
