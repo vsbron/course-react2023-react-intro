@@ -11,3 +11,4 @@ Small app that imitates the bank account app;
 
 - Redux is used for a Global state management;
 - Redux thunk is used for as a middleware library;
+- React ToolKit is used to create store, reducer and action creators functions;

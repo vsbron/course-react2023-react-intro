@@ -1,60 +1,72 @@
+// Importing the function that will create the slice
+import { createSlice } from "@reduxjs/toolkit";
+
 // Creating initial state for account
-const initialStateAccount = {
+const initialState = {
   balance: 0,
   loan: 0,
   loanPurpose: "",
   isLoading: false,
 };
 
-// Writing a basic reducer function for account
-export default function accountReducer(state = initialStateAccount, action) {
-  switch (action.type) {
-    // Putting money into account
-    case "account/deposit":
-      return {
-        ...state,
-        balance: state.balance + action.payload,
-        isLoading: false,
-      };
+// Creating the slice with reducers using createSlice function
+const accountSlice = createSlice({
+  name: "account", // Name of the slice
+  initialState, // The initial state
+  reducers: {
+    // The reducers
+    // Depositing money
+    deposit(state, action) {
+      state.balance += action.payload;
+      state.isLoading = false;
+    },
 
-    // Taking money out of the account
-    case "account/withdraw":
-      return { ...state, balance: state.balance - action.payload };
+    // Withdrawing money
+    withdraw(state, action) {
+      state.balance -= action.payload;
+    },
 
-    // Getting a loan
-    case "account/requestLoan":
-      if (state.loan > 0) return state;
-      return {
-        ...state,
-        loan: action.payload.amount,
-        loanPurpose: action.payload.purpose,
-        balance: state.balance + action.payload.amount,
-      };
+    // Requesting a loan
+    requestLoan: {
+      //  Preparing the new payload because it should have more than 1 argument
+      prepare(amount, purpose) {
+        // Returning the new payload
+        return {
+          payload: { amount, purpose },
+        };
+      },
+
+      // Creating the reducer with the right amount of arguments
+      reducer(state, action) {
+        if (state.loan > 0) return; // Guard clause
+
+        state.loan = action.payload.amount;
+        state.loanPurpose = action.payload.purpose;
+        state.balance += action.payload.amount;
+      },
+    },
 
     // Paying the loan
-    case "account/payLoan":
-      if (state.balance < state.loan) return state;
-      return {
-        ...state,
-        loan: 0,
-        loanPurpose: "",
-        balance: state.balance - state.loan,
-      };
+    payLoan(state) {
+      state.balance -= state.loan;
+      state.loan = 0;
+      state.loanPurpose = "";
+    },
 
-    // Loading during currenct exchange
-    case "account/convertingCurrency":
-      return {
-        ...state,
-        isLoading: true,
-      };
+    // Converting currenct state
+    convertingCurrency(state) {
+      state.isLoading = true;
+    },
+  },
+});
 
-    // Default behavior (returning state, instead of throwing error in useReducer)
-    default:
-      return state;
-  }
-}
+// Exporting the reducer from the slice
+export default accountSlice.reducer;
 
-// Action creators for account reducer
+// Exporting the action creators functions from the slice
+export const { withdraw, requestLoan, payLoan } = accountSlice.actions;
+
+// Action creators for deposit function
 export function deposit(amount, currency) {
   // If currency is USD, just return the object for dispatch
   if (currency === "USD") return { type: "account/deposit", payload: amount };
@@ -73,19 +85,5 @@ export function deposit(amount, currency) {
 
     // Return action (new dispatch function call)
     dispatch({ type: "account/deposit", payload: converted });
-  };
-}
-export function withdraw(amount) {
-  return { type: "account/withdraw", payload: amount };
-}
-export function requestLoan(amount, purpose) {
-  return {
-    type: "account/requestLoan",
-    payload: { amount, purpose },
-  };
-}
-export function payLoan() {
-  return {
-    type: "account/payLoan",
   };
 }
